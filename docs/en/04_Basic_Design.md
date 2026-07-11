@@ -122,7 +122,7 @@ The frontend is responsible for:
 * Calling backend API endpoints
 * Handling loading and error states
 * Maintaining authenticated frontend state
-* Sending the JWT with protected API requests
+* Sending credentialed requests so the browser includes the authentication cookie
 * Preventing unauthenticated dashboard access
 * Removing authentication state during logout
 
@@ -213,11 +213,15 @@ Phase 1 uses JWT access-token authentication.
 
 The backend creates a signed JWT after successful login.
 
+The JWT is transported in the `sentinelai_access_token` HttpOnly cookie.
+
+The access-token lifetime is 30 minutes.
+
 The JWT will contain only the minimum claims required to identify and validate the user session.
 
 Planned claims:
 
-* `sub`: authenticated user identifier
+* `sub`: authenticated user UUID
 * `exp`: token expiration time
 * `iat`: token creation time
 * `type`: token type
@@ -225,6 +229,8 @@ Planned claims:
 Sensitive user data must not be placed inside the JWT.
 
 ### 7.2 Password Handling
+
+Passwords are hashed using Argon2.
 
 Passwords follow this process:
 
@@ -260,11 +266,12 @@ The original password must never be stored or logged.
 3. Frontend performs basic form validation.
 4. Frontend sends a registration request to the backend.
 5. Backend validates the request.
-6. Backend checks whether the email already exists.
-7. Backend hashes the password.
-8. Backend creates the user record.
-9. Backend returns a safe user response.
-10. Frontend redirects the user to the login page.
+6. Backend normalizes the email to lowercase.
+7. Backend checks whether the email already exists.
+8. Backend hashes the password with Argon2.
+9. Backend creates the user record using a UUID identifier.
+10. Backend returns `201 Created` with a safe user response.
+11. Frontend redirects the user to the login page.
 ```
 
 ### 7.4 Login Flow
@@ -273,21 +280,24 @@ The original password must never be stored or logged.
 1. User enters email and password.
 2. Frontend sends credentials to the backend over HTTP.
 3. Backend validates the request.
-4. Backend retrieves the user by email.
-5. Backend verifies the submitted password.
-6. Backend creates a signed JWT access token.
-7. Backend returns the access token.
-8. Frontend stores the authentication state.
-9. Frontend requests authenticated user information.
-10. Frontend allows access to the dashboard.
+4. Backend normalizes the email to lowercase.
+5. Backend retrieves the user by email.
+6. Backend rejects inactive users with `403 Forbidden`.
+7. Backend verifies the submitted password.
+8. Backend creates a signed JWT access token.
+9. Backend sets the JWT in the `sentinelai_access_token` HttpOnly cookie.
+10. Backend returns `200 OK`.
+11. Frontend stores non-sensitive authentication state.
+12. Frontend requests authenticated user information.
+13. Frontend allows access to the dashboard.
 ```
 
 ### 7.5 Protected Request Flow
 
 ```text
 1. Frontend prepares a protected API request.
-2. Frontend includes the JWT in the Authorization header.
-3. Backend extracts the bearer token.
+2. The browser automatically sends the sentinelai_access_token HttpOnly cookie with credentialed requests.
+3. Backend reads the JWT from the cookie.
 4. Backend verifies the signature.
 5. Backend verifies token expiration.
 6. Backend reads the user identifier from the subject claim.
@@ -295,63 +305,53 @@ The original password must never be stored or logged.
 8. Backend returns the protected response.
 ```
 
-Header format:
+The active Phase 1 design does not use an `Authorization` header for browser authentication.
+
+### 7.6 Authenticated User Endpoint
+
+The frontend retrieves the current authenticated user through:
 
 ```text
-Authorization: Bearer <access-token>
+GET /api/v1/auth/me
 ```
 
-### 7.6 Logout Flow
+Success returns `200 OK` with safe user information.
 
-Phase 1 logout is client-side.
+### 7.7 Logout Flow
+
+Phase 1 logout uses a backend endpoint that clears the authentication cookie.
 
 ```text
 1. User selects Logout.
-2. Frontend removes the access token and authentication state.
-3. Frontend redirects to the login page.
-4. Protected frontend routes become inaccessible.
+2. Frontend sends POST /api/v1/auth/logout.
+3. Backend expires the sentinelai_access_token cookie.
+4. Frontend removes local authentication state.
+5. Frontend redirects to the login page.
+6. Protected frontend routes become inaccessible.
 ```
 
 Phase 1 does not include server-side token revocation.
 
 Server-side revocation, refresh-token rotation, and token denylisting may be evaluated in a later security-hardening phase.
 
-## 8. Token Storage Decision
+## 8. Token Transport Decision
 
-The final token storage mechanism must be confirmed before implementation.
+Phase 1 uses an HttpOnly cookie for JWT access-token transport.
 
-Candidate approaches:
+Approved cookie name:
 
-### Option A: Browser local storage
+```text
+sentinelai_access_token
+```
 
-Advantages:
+Rules:
 
-* Simple to implement
-* Easy for an educational Phase 1 MVP
-
-Risks:
-
-* Tokens may be accessible to malicious JavaScript during an XSS attack
-
-### Option B: Secure HttpOnly cookie
-
-Advantages:
-
-* JavaScript cannot directly read the token
-* Better protection against token theft through XSS
-
-Risks:
-
-* Requires CSRF protection and more careful cookie configuration
-* More complex local development behavior
-
-### Initial Recommendation
-
-Use an HttpOnly cookie-based authentication approach if the Phase 1 implementation can support it cleanly.
-
-Use local storage only if the project explicitly accepts the security tradeoff for the first MVP and records the decision in an ADR.
-
-The final decision must be documented before coding authentication.
+* JavaScript must not read or store the JWT.
+* The login response sets the cookie.
+* Protected requests use credentialed browser requests.
+* The backend reads the JWT from the cookie.
+* Logout clears the cookie through `POST /api/v1/auth/logout`.
+* CSRF considerations are documented in [12_Authentication_Flow.md](./12_Authentication_Flow.md).
 
 ## 9. Configuration Design
 
@@ -572,7 +572,7 @@ The following decisions require confirmation before implementation:
 | ------ | ---------------------------------------------------------------------------- | ------ |
 | DD-001 | JWT transport using an HttpOnly cookie | Accepted in ADR-001 |
 | DD-002 | Backend ORM and migration tooling                                            | Open   |
-| DD-003 | Password hashing algorithm and library                                       | Open   |
+| DD-003 | Password hashing with Argon2                                                 | Accepted |
 | DD-004 | Python dependency-management approach                                        | Open   |
 | DD-005 | Frontend API client strategy                                                 | Open   |
 

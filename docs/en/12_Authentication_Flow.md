@@ -46,7 +46,7 @@ SentinelAI Phase 1 uses:
 ### 3.1 Core Authentication Decisions
 
 - JWT `sub` claim stores the user UUID.
-- Email address is the Phase 1 login identifier.
+- Normalized lowercase email address is the Phase 1 login identifier.
 - Plaintext passwords are never stored.
 - Passwords are hashed using Argon2.
 - Inactive accounts are rejected during authentication.
@@ -160,7 +160,7 @@ The backend performs the following steps:
 
 ```text
 1. Validate the request body.
-2. Normalize the email address.
+2. Normalize the email address to lowercase.
 3. Check whether the email already exists.
 4. Validate password requirements.
 5. Hash the password using Argon2.
@@ -259,7 +259,7 @@ The backend performs:
 
 ```text
 1. Validate the request body.
-2. Normalize the email address.
+2. Normalize the email address to lowercase.
 3. Find the user by email.
 4. Reject the request if the user is unavailable or inactive.
 5. Verify the submitted password against the stored hash.
