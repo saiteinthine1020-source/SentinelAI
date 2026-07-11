@@ -205,6 +205,8 @@ The frontend must not communicate directly with the database.
 
 ## 7. Authentication Design
 
+Detailed authentication sequences, cookie behavior, error handling, and security rules are defined in [12_Authentication_Flow.md](./12_Authentication_Flow.md).
+
 ### 7.1 Authentication Method
 
 Phase 1 uses JWT access-token authentication.
@@ -568,7 +570,7 @@ The following decisions require confirmation before implementation:
 
 | ID     | Decision                                                                     | Status |
 | ------ | ---------------------------------------------------------------------------- | ------ |
-DD-001 | JWT transport using HttpOnly cookie | Accepted in ADR-001
+| DD-001 | JWT transport using an HttpOnly cookie | Accepted in ADR-001 |
 | DD-002 | Backend ORM and migration tooling                                            | Open   |
 | DD-003 | Password hashing algorithm and library                                       | Open   |
 | DD-004 | Python dependency-management approach                                        | Open   |
