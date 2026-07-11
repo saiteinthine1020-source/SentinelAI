@@ -34,14 +34,22 @@ This document does not define refresh tokens, role-based access control, organiz
 
 SentinelAI Phase 1 uses:
 
-* Email and password authentication
-* Secure password hashing
-* JWT access tokens
-* HttpOnly cookies
-* Backend-enforced authentication
-* Frontend route protection for user experience
-* Short-lived access sessions
-* Client-initiated logout
+- Email and password authentication
+- Secure password hashing
+- JWT access tokens
+- HttpOnly cookies
+- Backend-enforced authentication
+- Frontend route protection for user experience
+- Short-lived access sessions
+- Client-initiated logout
+
+### 3.1 Core Authentication Decisions
+
+- JWT `sub` claim stores the user UUID.
+- Email address is the Phase 1 login identifier.
+- Plaintext passwords are never stored.
+- Passwords are hashed using Argon2.
+- Inactive accounts are rejected during authentication.
 
 The backend remains the authoritative security boundary.
 
@@ -160,8 +168,20 @@ The backend performs the following steps:
 7. Commit the transaction.
 8. Return a safe user response.
 ```
+### 5.5 Password Policy
 
-### 5.5 Registration Response
+Phase 1 passwords must:
+
+- Contain at least 12 characters
+- Contain no more than 128 characters
+- Include at least one uppercase letter
+- Include at least one lowercase letter
+- Include at least one number
+- Include at least one special character
+
+Passwords must be validated by the backend.
+
+### 5.6 Registration Response
 
 Successful registration should return:
 
@@ -188,7 +208,7 @@ The response must not include:
 * JWT secret
 * Database information
 
-### 5.6 Registration Error Cases
+### 5.7 Registration Error Cases
 
 Possible errors:
 
@@ -517,7 +537,7 @@ Token revocation may be introduced later.
 | Scenario            | Status     |
 | ------------------- | ---------- |
 | Invalid credentials | 401        |
-| Inactive user       | 401 or 403 |
+| Inactive user       | 403        |
 | Invalid request     | 422        |
 | Unexpected error    | 500        |
 
@@ -669,14 +689,13 @@ Authentication tests must cover:
 
 ## 17. Open Questions
 
-| ID       | Question                           | Status                    |
-| -------- | ---------------------------------- | ------------------------- |
-| AUTH-001 | Access-token lifetime: 30 minutes | Accepted for Phase 1                     |
-| AUTH-002 | Inactive-user response: 403 Forbidden | Accepted                      |
-| AUTH-003 | Minimum password policy defined in Phase 1 | Accepted                      |
-| AUTH-004 | Cookie domain configuration        | Deferred until deployment |
-| AUTH-005 | Explicit CSRF token requirement    | Review before production  |
-
+| ID | Decision | Status |
+|---|---|---|
+| AUTH-001 | Access-token lifetime is 30 minutes | Accepted for Phase 1 |
+| AUTH-002 | Inactive users receive `403 Forbidden` | Accepted |
+| AUTH-003 | Phase 1 password policy requires 12–128 characters with uppercase, lowercase, numeric, and special characters | Accepted |
+| AUTH-004 | Cookie domain configuration | Deferred until deployment |
+| AUTH-005 | Explicit CSRF token requirement | Review before production |
 ## 18. Completion Criteria
 
 This authentication-flow design is complete when:
@@ -693,15 +712,3 @@ This authentication-flow design is complete when:
 * Test requirements are documented.
 * The design is aligned with the Basic Design and API Design documents.
 
-### Password Policy
-
-Phase 1 passwords must:
-
-- Contain at least 12 characters
-- Contain no more than 128 characters
-- Include at least one uppercase letter
-- Include at least one lowercase letter
-- Include at least one number
-- Include at least one special character
-
-Passwords must be validated by the backend.
