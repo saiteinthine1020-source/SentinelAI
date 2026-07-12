@@ -131,18 +131,15 @@ Japanese documentation will also be maintained to demonstrate documentation prac
 
 Main documentation includes:
 
-* Project Overview
-* Requirements Definition
-* Development Roadmap
-* Basic Design
-* Database Design
-* API Design
-* Screen Design
-* Setup Guide
-* Test Specification
-* Operation Manual
-* Release Notes
-* Architecture Decision Records
+- [Project Overview](docs/en/01_Project_Overview.md)
+- [Requirements](docs/en/02_Requirements.md)
+- [Development Roadmap](docs/en/03_Development_Roadmap.md)
+- [Basic Design](docs/en/04_Basic_Design.md)
+- [Database Design](docs/en/05_Database_Design.md)
+- [API Design](docs/en/06_API_Design.md)
+- [Screen Design](docs/en/07_Screen_Design.md)
+- [Authentication Flow](docs/en/12_Authentication_Flow.md)
+- [Architecture Decision Records](docs/en/adr/)
 
 ## Development Principles
 

@@ -64,7 +64,7 @@ The frontend is responsible for:
 * Rendering registration and login forms
 * Performing basic client-side validation
 * Sending requests to the backend
-* Sending cookies with credentialed requests
+* Sending cookies with credentialed requests using `withCredentials: true`
 * Requesting the authenticated user
 * Maintaining non-sensitive authentication state
 * Protecting frontend routes
@@ -379,7 +379,7 @@ GET /api/v1/auth/me
 Cookie: sentinelai_access_token=<JWT>
 ```
 
-The browser sends the cookie automatically when credentialed requests are enabled.
+The browser sends the cookie automatically when credentialed requests are enabled with `withCredentials: true`.
 
 Backend processing:
 

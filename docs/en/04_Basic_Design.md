@@ -122,7 +122,7 @@ The frontend is responsible for:
 * Calling backend API endpoints
 * Handling loading and error states
 * Maintaining authenticated frontend state
-* Sending credentialed requests so the browser includes the authentication cookie
+* Sending credentialed requests with `withCredentials: true` so the browser includes the authentication cookie
 * Preventing unauthenticated dashboard access
 * Removing authentication state during logout
 
@@ -264,7 +264,7 @@ The original password must never be stored or logged.
 1. User opens the registration page.
 2. User enters username, email, and password.
 3. Frontend performs basic form validation.
-4. Frontend sends a registration request to the backend.
+4. Frontend sends `POST /api/v1/auth/register` to the backend.
 5. Backend validates the request.
 6. Backend normalizes the email to lowercase.
 7. Backend checks whether the email already exists.
@@ -278,7 +278,7 @@ The original password must never be stored or logged.
 
 ```text
 1. User enters email and password.
-2. Frontend sends credentials to the backend over HTTP.
+2. Frontend sends credentials to `POST /api/v1/auth/login` over HTTP.
 3. Backend validates the request.
 4. Backend normalizes the email to lowercase.
 5. Backend retrieves the user by email.
@@ -296,7 +296,7 @@ The original password must never be stored or logged.
 
 ```text
 1. Frontend prepares a protected API request.
-2. The browser automatically sends the sentinelai_access_token HttpOnly cookie with credentialed requests.
+2. The browser automatically sends the sentinelai_access_token HttpOnly cookie with credentialed requests using `withCredentials: true`.
 3. Backend reads the JWT from the cookie.
 4. Backend verifies the signature.
 5. Backend verifies token expiration.
