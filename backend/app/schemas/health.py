@@ -10,3 +10,10 @@ class HealthResponse(BaseModel):
     service: str
     version: str
     environment: str
+
+
+class ReadinessResponse(BaseModel):
+    """Response returned by the database readiness endpoint."""
+
+    status: Literal["ready"]
+    database: Literal["available"]

@@ -231,6 +231,7 @@ The response must never contain:
 | ID      | Method | Path                    | Authentication  | Purpose                            |
 | ------- | ------ | ----------------------- | --------------- | ---------------------------------- |
 | API-001 | GET    | `/health`               | Public          | Basic application health check     |
+| API-001A | GET   | `/health/ready`         | Public          | Check database readiness           |
 | API-002 | POST   | `/api/v1/auth/register` | Public          | Register a new user                |
 | API-003 | POST   | `/api/v1/auth/login`    | Public          | Authenticate a user and set cookie |
 | API-004 | GET    | `/api/v1/auth/me`       | Required        | Return the authenticated user      |
@@ -275,7 +276,48 @@ The Phase 1 health endpoint does not need to expose:
 * Host details
 * Secret configuration
 
-A separate readiness check that verifies database connectivity may be added later if needed.
+A separate readiness check verifies database connectivity without changing the purpose of the basic health endpoint.
+
+## Database Readiness Check
+
+### Endpoint
+
+```http
+GET /health/ready
+```
+
+### Purpose
+
+Confirms that the backend can execute a basic PostgreSQL query.
+
+### Successful Response
+
+```http
+200 OK
+```
+
+```json
+{
+  "status": "ready",
+  "database": "available"
+}
+```
+
+### Unavailable Database
+
+```http
+503 Service Unavailable
+```
+
+```json
+{
+  "detail": "Database is unavailable"
+}
+```
+
+The response must not expose database connection details.
+
+---
 
 ## 12. API-002: User Registration
 
@@ -818,6 +860,9 @@ The API must not log:
 
 * Returns `200`
 * Returns expected service status
+* Readiness check returns `200` when PostgreSQL is available
+* Readiness check returns `503` when PostgreSQL is unavailable
+* Readiness errors do not expose database connection details
 
 ### Registration
 
@@ -870,7 +915,7 @@ The API must not log:
 
 The Phase 1 API implementation will be complete when:
 
-* All five endpoints are implemented.
+* All six endpoints are implemented.
 * Request schemas match this document.
 * Response schemas match this document.
 * Status codes match this document.
