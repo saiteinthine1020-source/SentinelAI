@@ -175,6 +175,82 @@ Run backend linting:
 docker compose run --rm backend ruff check app tests
 ```
 
+## Database and Migration Commands
+
+Start PostgreSQL:
+
+```powershell
+docker compose up -d database
+```
+
+Check PostgreSQL health:
+
+```powershell
+docker compose ps
+```
+
+Show the current migration revision:
+
+```powershell
+docker compose run --rm backend alembic current
+```
+
+Show the latest migration head:
+
+```powershell
+docker compose run --rm backend alembic heads
+```
+
+Apply all migrations:
+
+```powershell
+docker compose run --rm backend alembic upgrade head
+```
+
+Revert one migration:
+
+```powershell
+docker compose run --rm backend alembic downgrade -1
+```
+
+Create a migration after changing SQLAlchemy models:
+
+```powershell
+docker compose run --rm backend alembic revision --autogenerate -m "describe schema change"
+```
+
+Generated migrations must be reviewed before they are applied.
+
+Check for model changes that do not yet have a migration:
+
+```powershell
+docker compose run --rm backend alembic check
+```
+
+Open PostgreSQL:
+
+```powershell
+docker compose exec database psql -U sentinelai -d sentinelai
+```
+
+Inside PostgreSQL, list tables:
+
+```text
+\dt
+```
+
+Exit PostgreSQL:
+
+```text
+\q
+```
+
+Database readiness endpoint:
+
+```text
+http://localhost:8000/health/ready
+```
+
 ## 10. Access the Services
 
 | Service | Address | Current result |

@@ -16,6 +16,8 @@ class Settings(BaseSettings):
     api_v1_prefix: str = "/api/v1"
     cors_allowed_origins: Annotated[list[str], NoDecode] = ["http://localhost:5173"]
 
+    database_url: str = "postgresql+psycopg://sentinelai:change-me@database:5432/sentinelai"
+
     model_config = SettingsConfigDict(
         env_file=".env",
         env_file_encoding="utf-8",
