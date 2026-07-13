@@ -167,6 +167,14 @@ The expected services are:
 * `backend` / `sentinelai-backend`
 * `frontend` / `sentinelai-frontend`
 
+## Backend Quality Checks
+
+Run backend linting:
+
+```powershell
+docker compose run --rm backend ruff check app tests
+```
+
 ## 10. Access the Services
 
 | Service | Address | Current result |
