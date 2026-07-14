@@ -910,3 +910,31 @@ The Phase 1 frontend implementation is complete when:
 * Responsive behavior works at supported widths.
 * Accessibility basics are implemented.
 * Screen behavior matches the API and authentication documents.
+
+## Implementation Status
+
+Implemented in the frontend foundation:
+
+* React and TypeScript application
+* Vite development environment
+* Tailwind CSS integration
+* React Router configuration
+* Centralized Axios client
+* React Hook Form dependency
+* Zod validation schemas
+* Authentication feature folders
+* Login placeholder page
+* Registration placeholder page
+* Dashboard placeholder page
+* Not Found page
+* Shared authentication and application layouts
+
+Not yet implemented:
+
+* Registration form submission
+* Login form submission
+* Authentication provider
+* Protected routes
+* Current-user session loading
+* Logout behavior
+* Backend error presentation

@@ -251,6 +251,54 @@ Database readiness endpoint:
 http://localhost:8000/health/ready
 ```
 
+## Frontend Development Commands
+
+Build the frontend Docker image:
+
+```powershell
+docker compose build frontend
+```
+
+Run frontend linting:
+
+```powershell
+docker compose run --rm frontend npm run lint
+```
+
+Run TypeScript checks:
+
+```powershell
+docker compose run --rm frontend npm run typecheck
+```
+
+Create a production build:
+
+```powershell
+docker compose run --rm frontend npm run build
+```
+
+Start the frontend development server:
+
+```powershell
+docker compose up -d frontend
+```
+
+Open the frontend:
+
+```text
+http://localhost:5173
+```
+
+Phase 1 routes:
+
+```text
+/login
+/register
+/dashboard
+```
+
+The dashboard route is not protected until the authentication feature is implemented.
+
 ## 10. Access the Services
 
 | Service | Address | Current result |
