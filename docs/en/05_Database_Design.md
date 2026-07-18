@@ -634,10 +634,11 @@ Implemented in the database foundation:
 * Alembic migration environment
 * Initial baseline migration
 * Database readiness endpoint
+* Database connectivity integration test
 
 Not yet implemented:
 
 * User ORM model
 * Users table migration
 * Registration repository
-* User database tests
+* User-specific database tests
