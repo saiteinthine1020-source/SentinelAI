@@ -437,6 +437,18 @@ FastAPI validation-response structure.
 * Do not expose database exceptions directly.
 * Database unique constraints remain the final protection against duplicates.
 
+### Implementation Status
+
+`POST /api/v1/auth/register` is implemented with:
+
+* Request validation
+* Username and email normalization
+* Argon2 password hashing
+* Duplicate email detection
+* Duplicate username detection
+* PostgreSQL persistence
+* Safe public response schema
+
 ## 13. API-003: User Login
 
 ### 13.1 Endpoint

@@ -309,7 +309,31 @@ The dashboard route is not protected until the authentication feature is impleme
 | OpenAPI schema | `http://localhost:8000/openapi.json` | Generated API specification |
 | PostgreSQL | `localhost:5432` | Host connection for database tools |
 
-The health endpoint currently confirms that FastAPI is responding. It is not yet a database-readiness check.
+The `/health` endpoint confirms that FastAPI is responding. Use `/health/ready` to check PostgreSQL readiness.
+
+## Test User Registration
+
+Open:
+
+```text
+http://localhost:5173/register
+```
+
+Or use PowerShell:
+
+```powershell
+$body = @{
+    username = "example_user"
+    email = "example.user@example.com"
+    password = "StrongPassword123!"
+} | ConvertTo-Json
+
+Invoke-RestMethod `
+    -Method Post `
+    -Uri "http://localhost:8000/api/v1/auth/register" `
+    -ContentType "application/json" `
+    -Body $body
+```
 
 ## 11. Development Mounts and Persistence
 

@@ -624,7 +624,7 @@ The Phase 1 database implementation will be complete when:
 
 ## Implementation Status
 
-Implemented in the database foundation:
+Implemented:
 
 * PostgreSQL Docker service
 * SQLAlchemy 2.x engine
@@ -635,10 +635,13 @@ Implemented in the database foundation:
 * Initial baseline migration
 * Database readiness endpoint
 * Database connectivity integration test
-
-Not yet implemented:
-
 * User ORM model
 * Users table migration
 * Registration repository
 * User-specific database tests
+* UUID user identifiers
+* Unique normalized usernames
+* Unique normalized email addresses
+* Argon2 password-hash storage
+* Active-account status
+* Creation and update timestamps

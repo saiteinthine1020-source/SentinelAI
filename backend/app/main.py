@@ -5,7 +5,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.api.router import api_router
+from app.api.router import api_v1_router, root_router
 from app.core.config import Settings, get_settings
 from app.core.logging import configure_logging
 
@@ -53,7 +53,11 @@ def create_application(settings: Settings | None = None) -> FastAPI:
         allow_headers=["Content-Type", "Accept"],
     )
 
-    application.include_router(api_router)
+    application.include_router(root_router)
+    application.include_router(
+        api_v1_router,
+        prefix=application_settings.api_v1_prefix,
+    )
 
     return application
 
