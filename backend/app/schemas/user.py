@@ -53,6 +53,24 @@ class UserRegistrationRequest(BaseModel):
         return value
 
 
+class UserLoginRequest(BaseModel):
+    """Input accepted by the login endpoint."""
+
+    email: EmailStr
+    password: str = Field(min_length=1, max_length=128)
+
+    @field_validator("email")
+    @classmethod
+    def normalize_login_email(cls, value: EmailStr) -> str:
+        return str(value).strip().lower()
+
+
+class LoginResponse(BaseModel):
+    """Safe response returned after successful login."""
+
+    message: str
+
+
 class UserPublicResponse(BaseModel):
     """Safe public representation of a SentinelAI user."""
 

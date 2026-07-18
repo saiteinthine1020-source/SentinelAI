@@ -567,6 +567,20 @@ Use the same message when:
 * Do not log the JWT.
 * Cookie attributes must match the approved environment configuration.
 
+### Login Implementation Status
+
+`POST /api/v1/auth/login` is implemented with:
+
+* Email normalization
+* Argon2 password verification
+* Generic invalid-credential errors
+* Inactive-account rejection
+* Signed JWT access token
+* 30-minute token expiration
+* HttpOnly authentication cookie
+* Credentialed frontend requests
+* Safe response body without JWT exposure
+
 ## 14. API-004: Current Authenticated User
 
 ### 14.1 Endpoint

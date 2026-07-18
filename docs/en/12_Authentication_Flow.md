@@ -712,3 +712,21 @@ This authentication-flow design is complete when:
 * Test requirements are documented.
 * The design is aligned with the Basic Design and API Design documents.
 
+## Implementation Status
+
+Implemented:
+
+* Email and password login
+* Argon2 password verification
+* Inactive-account rejection
+* JWT access-token creation
+* JWT `sub` claim containing the user UUID
+* 30-minute token lifetime
+* HttpOnly cookie delivery
+
+Not yet implemented:
+
+* `GET /api/v1/auth/me`
+* Protected frontend routes
+* Logout
+

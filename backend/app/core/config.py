@@ -18,6 +18,15 @@ class Settings(BaseSettings):
 
     database_url: str = "postgresql+psycopg://sentinelai:change-me@database:5432/sentinelai"
 
+    jwt_secret_key: str = "replace-this-development-secret"
+    jwt_algorithm: str = "HS256"
+    access_token_expire_minutes: int = 30
+
+    access_token_cookie_name: str = "sentinelai_access_token"
+    cookie_secure: bool = False
+    cookie_samesite: str = "lax"
+    cookie_path: str = "/"
+
     model_config = SettingsConfigDict(
         env_file=".env",
         env_file_encoding="utf-8",
