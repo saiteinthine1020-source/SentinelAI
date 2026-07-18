@@ -913,7 +913,7 @@ The Phase 1 frontend implementation is complete when:
 
 ## Implementation Status
 
-Implemented in the frontend foundation:
+Implemented:
 
 * React and TypeScript application
 * Vite development environment
@@ -924,17 +924,20 @@ Implemented in the frontend foundation:
 * Zod validation schemas
 * Authentication feature folders
 * Login placeholder page
-* Registration placeholder page
 * Dashboard placeholder page
 * Not Found page
 * Shared authentication and application layouts
+* Registration form
+* Frontend registration validation
+* Loading state
+* Backend conflict error display
+* Successful registration redirect
+* Login-page registration success message
 
 Not yet implemented:
 
-* Registration form submission
 * Login form submission
 * Authentication provider
 * Protected routes
 * Current-user session loading
 * Logout behavior
-* Backend error presentation

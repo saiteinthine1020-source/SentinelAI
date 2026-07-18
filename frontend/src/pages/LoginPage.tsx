@@ -1,8 +1,17 @@
-import { Link } from "react-router";
+import { Link, useLocation } from "react-router";
 
 import { AuthLayout } from "../components/layout/AuthLayout";
 
 export function LoginPage() {
+  const location = useLocation();
+
+  const navigationState = location.state as
+    | {
+        registrationMessage?: string;
+        registeredEmail?: string;
+      }
+    | null;
+
   return (
     <AuthLayout>
       <h1 className="text-3xl font-bold tracking-tight">Welcome back</h1>
@@ -10,6 +19,15 @@ export function LoginPage() {
       <p className="mt-2 text-sm text-slate-400">
         Sign in to access your SentinelAI workspace.
       </p>
+
+      {navigationState?.registrationMessage ? (
+        <div
+          className="mt-6 rounded-lg border border-emerald-800 bg-emerald-950/50 p-3 text-sm text-emerald-200"
+          role="status"
+        >
+          {navigationState.registrationMessage}
+        </div>
+      ) : null}
 
       <div className="mt-8 rounded-xl border border-dashed border-slate-700 p-6 text-center">
         <p className="text-sm text-slate-400">

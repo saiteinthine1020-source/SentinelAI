@@ -1,11 +1,9 @@
 from fastapi.testclient import TestClient
 
-from app.main import create_application
 
-client = TestClient(create_application())
-
-
-def test_health_check_returns_expected_response() -> None:
+def test_health_check_returns_expected_response(
+    client: TestClient,
+) -> None:
     response = client.get("/health")
 
     assert response.status_code == 200
@@ -17,7 +15,9 @@ def test_health_check_returns_expected_response() -> None:
     }
 
 
-def test_readiness_check_returns_ready_when_database_is_available() -> None:
+def test_readiness_check_returns_ready_when_database_is_available(
+    client: TestClient,
+) -> None:
     response = client.get("/health/ready")
 
     assert response.status_code == 200
