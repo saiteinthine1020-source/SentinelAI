@@ -335,6 +335,34 @@ Invoke-RestMethod `
     -Body $body
 ```
 
+## Test User Login
+
+PowerShell example:
+
+```powershell
+$body = @{
+    email = "login.test@example.com"
+    password = "StrongPassword123!"
+} | ConvertTo-Json
+
+Invoke-WebRequest `
+    -Method Post `
+    -Uri "http://localhost:8000/api/v1/auth/login" `
+    -ContentType "application/json" `
+    -Body $body `
+    -SessionVariable session
+```
+
+A successful request returns:
+
+```json
+{
+  "message": "Login successful"
+}
+```
+
+The access token is delivered through the `sentinelai_access_token` HttpOnly cookie and must not be copied into documentation.
+
 ## 11. Development Mounts and Persistence
 
 The backend mounts `backend/app` and `backend/tests` into its container. Uvicorn runs with `--reload`, so Python application changes are reloaded during development.

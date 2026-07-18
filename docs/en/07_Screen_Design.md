@@ -923,7 +923,6 @@ Implemented:
 * React Hook Form dependency
 * Zod validation schemas
 * Authentication feature folders
-* Login placeholder page
 * Dashboard placeholder page
 * Not Found page
 * Shared authentication and application layouts
@@ -933,11 +932,18 @@ Implemented:
 * Backend conflict error display
 * Successful registration redirect
 * Login-page registration success message
+* Login form
+* Login validation
+* Registration email prefilling
+* Login loading state
+* Invalid-credential error display
+* Inactive-account error display
+* Successful login redirect
 
-Not yet implemented:
+Still pending:
 
-* Login form submission
-* Authentication provider
-* Protected routes
-* Current-user session loading
-* Logout behavior
+* Session verification
+* Protected route guard
+* Authenticated-user state
+* Session-expiration handling
+* Logout
