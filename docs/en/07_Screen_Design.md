@@ -939,11 +939,20 @@ Implemented:
 * Invalid-credential error display
 * Inactive-account error display
 * Successful login redirect
+* Authentication provider
+* Application startup session check
+* Authentication loading screen
+* Protected dashboard route
+* Public-only login and registration routes
+* Authenticated user display
+* Browser refresh session restoration
+* Missing-session redirect
+* Invalid-session redirect
+* Inactive-user handling
+* Session-check error state
 
-Still pending:
+Not yet implemented:
 
-* Session verification
-* Protected route guard
-* Authenticated-user state
-* Session-expiration handling
-* Logout
+* Logout endpoint
+* Logout control
+* Explicit expired-session notification

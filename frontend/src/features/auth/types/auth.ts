@@ -16,3 +16,9 @@ export interface AuthState {
   status: AuthStatus;
   user: PublicUser | null;
 }
+
+export interface AuthContextValue extends AuthState {
+  refreshSession: () => Promise<void>;
+  setAuthenticatedUser: (user: PublicUser) => void;
+  clearSession: () => void;
+}
