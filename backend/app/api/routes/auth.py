@@ -9,6 +9,7 @@ from fastapi import (
 )
 from sqlalchemy.orm import Session
 
+from app.api.dependencies.authentication import CurrentUser
 from app.core.config import get_settings
 from app.db.dependencies import get_db_session
 from app.schemas.user import (
@@ -112,3 +113,17 @@ def login_user(
     )
 
     return LoginResponse(message="Login successful")
+
+
+@router.get(
+    "/me",
+    response_model=UserPublicResponse,
+    status_code=status.HTTP_200_OK,
+    summary="Return the authenticated SentinelAI user",
+)
+def get_authenticated_user(
+    current_user: CurrentUser,
+) -> UserPublicResponse:
+    """Return safe public data for the authenticated user."""
+
+    return UserPublicResponse.model_validate(current_user)

@@ -363,6 +363,33 @@ A successful request returns:
 
 The access token is delivered through the `sentinelai_access_token` HttpOnly cookie and must not be copied into documentation.
 
+## Test the Current-User Session
+
+After logging in, call:
+
+```powershell
+Invoke-RestMethod `
+    -Method Get `
+    -Uri "http://localhost:8000/api/v1/auth/me" `
+    -WebSession $session
+```
+
+The `$session` value must be the `WebRequestSession` created during the login request.
+
+Successful response:
+
+```json
+{
+  "id": "user-uuid",
+  "username": "example_user",
+  "email": "example.user@example.com",
+  "is_active": true,
+  "created_at": "2026-07-18T04:00:00Z"
+}
+```
+
+A request without a valid authentication cookie returns `401`.
+
 ## 11. Development Mounts and Persistence
 
 The backend mounts `backend/app` and `backend/tests` into its container. Uvicorn runs with `--reload`, so Python application changes are reloaded during development.

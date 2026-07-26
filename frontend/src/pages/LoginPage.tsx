@@ -6,6 +6,7 @@ import { Link, useLocation, useNavigate } from "react-router";
 
 import { AuthLayout } from "../components/layout/AuthLayout";
 import { loginUser } from "../features/auth/api/auth-api";
+import { useAuth } from "../features/auth/hooks/use-auth";
 import {
   loginSchema,
   type LoginFormValues,
@@ -18,11 +19,13 @@ interface ApiErrorResponse {
 interface LoginNavigationState {
   registrationMessage?: string;
   registeredEmail?: string;
+  sessionMessage?: string;
 }
 
 export function LoginPage() {
   const location = useLocation();
   const navigate = useNavigate();
+  const { refreshSession } = useAuth();
 
   const navigationState = location.state as LoginNavigationState | null;
 
@@ -48,6 +51,8 @@ export function LoginPage() {
         email: values.email.trim().toLowerCase(),
         password: values.password,
       });
+
+      await refreshSession();
 
       navigate("/dashboard", {
         replace: true,
@@ -86,6 +91,15 @@ export function LoginPage() {
           role="status"
         >
           {navigationState.registrationMessage}
+        </div>
+      ) : null}
+
+      {navigationState?.sessionMessage ? (
+        <div
+          className="mt-6 rounded-lg border border-amber-800 bg-amber-950/50 p-3 text-sm text-amber-200"
+          role="status"
+        >
+          {navigationState.sessionMessage}
         </div>
       ) : null}
 

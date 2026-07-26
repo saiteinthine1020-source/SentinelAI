@@ -693,6 +693,20 @@ The backend must:
 * Backend authentication must run on every protected request.
 * Frontend route state is not sufficient authorization.
 
+### Current-User Implementation Status
+
+`GET /api/v1/auth/me` is implemented with:
+
+* HttpOnly cookie extraction
+* JWT signature validation
+* JWT expiration validation
+* Required-claim validation
+* Access-token type validation
+* User UUID lookup
+* Missing-user rejection
+* Inactive-account rejection
+* Safe public-user response
+
 ## 15. API-005: Logout
 
 ### 15.1 Endpoint

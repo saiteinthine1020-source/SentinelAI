@@ -723,10 +723,21 @@ Implemented:
 * JWT `sub` claim containing the user UUID
 * 30-minute token lifetime
 * HttpOnly cookie delivery
+* Access-token cookie extraction
+* JWT decoding
+* Signature validation
+* Expiration validation
+* Token-type validation
+* User lookup from JWT `sub`
+* Current-user endpoint
+* Missing-session handling
+* Invalid-session handling
+* Inactive-user handling
+* Frontend session bootstrap
+* Protected-route guard
+* Public-only route guard
 
 Not yet implemented:
 
-* `GET /api/v1/auth/me`
-* Protected frontend routes
 * Logout
 
