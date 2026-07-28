@@ -7,7 +7,10 @@ import {
   type ReactNode,
 } from "react";
 
-import { getCurrentUser } from "../api/auth-api";
+import {
+  getCurrentUser,
+  logoutUser,
+} from "../api/auth-api";
 import type {
   AuthContextValue,
   AuthState,
@@ -27,6 +30,7 @@ const initialState: AuthState = {
 export function AuthProvider({ children }: AuthProviderProps) {
   const [authState, setAuthState] =
     useState<AuthState>(initialState);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   const refreshSession = useCallback(async () => {
     setAuthState({
@@ -79,6 +83,30 @@ export function AuthProvider({ children }: AuthProviderProps) {
     });
   }, []);
 
+  const logout = useCallback(async () => {
+    setIsLoggingOut(true);
+
+    let serverConfirmed = false;
+
+    try {
+      await logoutUser();
+      serverConfirmed = true;
+    } catch {
+      serverConfirmed = false;
+    } finally {
+      setAuthState({
+        status: "unauthenticated",
+        user: null,
+      });
+
+      setIsLoggingOut(false);
+    }
+
+    return {
+      serverConfirmed,
+    };
+  }, []);
+
   useEffect(() => {
     void refreshSession();
   }, [refreshSession]);
@@ -89,10 +117,14 @@ export function AuthProvider({ children }: AuthProviderProps) {
       refreshSession,
       setAuthenticatedUser,
       clearSession,
+      isLoggingOut,
+      logout,
     }),
     [
       authState,
       clearSession,
+      isLoggingOut,
+      logout,
       refreshSession,
       setAuthenticatedUser,
     ],

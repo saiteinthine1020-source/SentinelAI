@@ -71,6 +71,12 @@ class LoginResponse(BaseModel):
     message: str
 
 
+class LogoutResponse(BaseModel):
+    """Safe response returned after logout."""
+
+    message: str
+
+
 class UserPublicResponse(BaseModel):
     """Safe public representation of a SentinelAI user."""
 

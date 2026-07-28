@@ -950,9 +950,13 @@ Implemented:
 * Invalid-session redirect
 * Inactive-user handling
 * Session-check error state
+* Dashboard logout control
+* Logout loading state
+* Authentication-state cleanup
+* Login redirect after logout
+* Logout success message
+* Local-only logout warning on network failure
 
 Not yet implemented:
 
-* Logout endpoint
-* Logout control
 * Explicit expired-session notification

@@ -14,6 +14,7 @@ from app.core.config import get_settings
 from app.db.dependencies import get_db_session
 from app.schemas.user import (
     LoginResponse,
+    LogoutResponse,
     UserLoginRequest,
     UserPublicResponse,
     UserRegistrationRequest,
@@ -127,3 +128,25 @@ def get_authenticated_user(
     """Return safe public data for the authenticated user."""
 
     return UserPublicResponse.model_validate(current_user)
+
+
+@router.post(
+    "/logout",
+    response_model=LogoutResponse,
+    status_code=status.HTTP_200_OK,
+    summary="Log out the current SentinelAI user",
+)
+def logout_user(response: Response) -> LogoutResponse:
+    """Clear the authentication cookie."""
+
+    settings = get_settings()
+
+    response.delete_cookie(
+        key=settings.access_token_cookie_name,
+        path=settings.cookie_path,
+        secure=settings.cookie_secure,
+        httponly=True,
+        samesite=settings.cookie_samesite,
+    )
+
+    return LogoutResponse(message="Logout successful")
