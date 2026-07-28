@@ -51,6 +51,26 @@ def test_registration_creates_user(
     )
 
 
+def test_registration_normalizes_email_and_username(
+    client: TestClient,
+) -> None:
+    response = client.post(
+        REGISTER_ENDPOINT,
+        json={
+            "username": "Mixed_CASE_User",
+            "email": "Mixed.Email@Example.COM",
+            "password": "StrongPassword123!",
+        },
+    )
+
+    assert response.status_code == 201
+
+    body = response.json()
+
+    assert body["username"] == "mixed_case_user"
+    assert body["email"] == "mixed.email@example.com"
+
+
 def test_registration_rejects_duplicate_email(
     client: TestClient,
 ) -> None:
