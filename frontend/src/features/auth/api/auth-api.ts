@@ -7,6 +7,10 @@ interface LoginResponse {
   message: string;
 }
 
+interface LogoutResponse {
+  message: string;
+}
+
 type RegisterRequest = Omit<RegisterFormValues, "confirmPassword">;
 
 export async function registerUser(
@@ -43,6 +47,10 @@ export async function getCurrentUser(): Promise<PublicUser> {
   return response.data;
 }
 
-export async function logoutUser(): Promise<void> {
-  await apiClient.post("/api/v1/auth/logout");
+export async function logoutUser(): Promise<LogoutResponse> {
+  const response = await apiClient.post<LogoutResponse>(
+    "/api/v1/auth/logout",
+  );
+
+  return response.data;
 }

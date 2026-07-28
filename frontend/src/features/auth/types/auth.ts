@@ -17,8 +17,14 @@ export interface AuthState {
   user: PublicUser | null;
 }
 
+export interface LogoutResult {
+  serverConfirmed: boolean;
+}
+
 export interface AuthContextValue extends AuthState {
   refreshSession: () => Promise<void>;
   setAuthenticatedUser: (user: PublicUser) => void;
   clearSession: () => void;
+  isLoggingOut: boolean;
+  logout: () => Promise<LogoutResult>;
 }

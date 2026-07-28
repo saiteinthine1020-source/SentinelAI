@@ -390,6 +390,26 @@ Successful response:
 
 A request without a valid authentication cookie returns `401`.
 
+## Test Logout
+
+PowerShell:
+
+```powershell
+Invoke-RestMethod `
+    -Method Post `
+    -Uri "http://localhost:8000/api/v1/auth/logout"
+```
+
+Successful response:
+
+```json
+{
+  "message": "Logout successful"
+}
+```
+
+Logout is idempotent and returns `200` even when no valid authentication cookie exists.
+
 ## 11. Development Mounts and Persistence
 
 The backend mounts `backend/app` and `backend/tests` into its container. Uvicorn runs with `--reload`, so Python application changes are reloaded during development.

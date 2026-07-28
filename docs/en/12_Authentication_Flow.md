@@ -736,8 +736,10 @@ Implemented:
 * Frontend session bootstrap
 * Protected-route guard
 * Public-only route guard
-
-Not yet implemented:
-
-* Logout
-
+* Logout endpoint
+* Authentication-cookie deletion
+* Idempotent logout
+* Frontend authentication-state cleanup
+* Redirect to login
+* Logout loading state
+* Local logout fallback when the server is unreachable

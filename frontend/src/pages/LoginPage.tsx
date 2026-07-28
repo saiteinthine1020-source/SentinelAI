@@ -20,6 +20,7 @@ interface LoginNavigationState {
   registrationMessage?: string;
   registeredEmail?: string;
   sessionMessage?: string;
+  logoutMessage?: string;
 }
 
 export function LoginPage() {
@@ -100,6 +101,15 @@ export function LoginPage() {
           role="status"
         >
           {navigationState.sessionMessage}
+        </div>
+      ) : null}
+
+      {navigationState?.logoutMessage ? (
+        <div
+          className="mt-6 rounded-lg border border-emerald-800 bg-emerald-950/50 p-3 text-sm text-emerald-200"
+          role="status"
+        >
+          {navigationState.logoutMessage}
         </div>
       ) : null}
 

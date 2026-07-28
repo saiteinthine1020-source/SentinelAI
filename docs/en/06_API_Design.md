@@ -770,6 +770,17 @@ This makes logout idempotent and simplifies frontend session cleanup.
 * Do not log the cookie value.
 * Ensure deletion attributes match the original cookie configuration.
 
+### Logout Implementation Status
+
+`POST /api/v1/auth/logout` is implemented with:
+
+* HttpOnly cookie deletion
+* Matching cookie path and security settings
+* Idempotent behavior
+* Success when the cookie is missing
+* Success when the cookie is malformed or expired
+* Safe response without JWT exposure
+
 ## 16. CORS Requirements
 
 Because the frontend and backend may use different localhost ports during development, CORS must be configured explicitly.
