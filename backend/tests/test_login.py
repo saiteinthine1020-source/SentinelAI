@@ -53,7 +53,30 @@ def test_login_sets_http_only_cookie(
     assert "Path=/" in set_cookie
     assert "SameSite=lax" in set_cookie
 
+    # Secure is disabled only in the local development configuration.
+    assert "Secure" not in set_cookie
+
     assert "access_token" not in response.json()
+
+
+def test_login_accepts_email_with_different_case(
+    client: TestClient,
+    db_session: Session,
+) -> None:
+    create_user(
+        db_session,
+        email="case.login@example.com",
+    )
+
+    response = client.post(
+        LOGIN_ENDPOINT,
+        json={
+            "email": "CASE.LOGIN@EXAMPLE.COM",
+            "password": "StrongPassword123!",
+        },
+    )
+
+    assert response.status_code == 200
 
 
 def test_login_rejects_unknown_email(
@@ -87,6 +110,36 @@ def test_login_rejects_wrong_password(
 
     assert response.status_code == 401
     assert response.json() == {"detail": "Invalid email or password"}
+
+
+def test_unknown_email_and_wrong_password_use_same_error(
+    client: TestClient,
+    db_session: Session,
+) -> None:
+    create_user(db_session)
+
+    unknown_email_response = client.post(
+        LOGIN_ENDPOINT,
+        json={
+            "email": "unknown@example.com",
+            "password": "StrongPassword123!",
+        },
+    )
+
+    wrong_password_response = client.post(
+        LOGIN_ENDPOINT,
+        json={
+            "email": "login.user@example.com",
+            "password": "WrongPassword123!",
+        },
+    )
+
+    assert unknown_email_response.status_code == 401
+    assert wrong_password_response.status_code == 401
+
+    assert unknown_email_response.json() == {"detail": "Invalid email or password"}
+
+    assert wrong_password_response.json() == {"detail": "Invalid email or password"}
 
 
 def test_login_rejects_inactive_user(
