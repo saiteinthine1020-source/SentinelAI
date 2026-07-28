@@ -2,327 +2,228 @@
 
 ## 1. Purpose
 
-This guide documents the development foundation that is currently present in the SentinelAI repository, explains what each part is for, and shows how to run it locally.
+This guide explains how to build, run, test, and verify the SentinelAI Phase 1 Authentication MVP locally.
 
-Phase 1 currently provides a containerized React frontend, FastAPI backend, and PostgreSQL database. It verifies that the three-service development environment can start successfully. It does not yet provide the planned authentication or application features.
+Phase 1 includes:
 
-## 2. What Is Currently Set Up
+* React and TypeScript frontend
+* FastAPI backend
+* PostgreSQL database
+* Docker Compose development environment
+* User registration
+* User login
+* JWT authentication through an HttpOnly cookie
+* Current-user session verification
+* Protected dashboard
+* Logout
+* Backend authentication tests
 
-| Component | Current setup | Purpose |
-| --- | --- | --- |
-| Frontend | React 19, TypeScript 6, Vite 8, and Oxlint on Node.js 22 | Provides the browser user interface and development server |
-| Backend | Python 3.12, FastAPI, and Uvicorn | Provides the HTTP API and interactive API documentation |
-| Database | PostgreSQL 17 Alpine | Provides persistent relational data storage for later backend features |
-| Database libraries | SQLAlchemy 2 and Psycopg 3 | Prepare the backend for future database access |
-| Backend development tools | Pytest, HTTPX, and Ruff | Support testing, API test clients, linting, and formatting checks |
-| Containers | Docker Desktop and Docker Compose | Build and run the frontend, backend, and database consistently |
-| Configuration | `.env.example` and a local `.env` | Supply Compose and application settings without committing local secrets |
+## 2. Prerequisites
 
-### Current implementation boundary
-
-The following facts describe the repository as it exists now:
-
-* The frontend displays a Phase 1 environment status card.
-* The frontend does not yet call the backend API.
-* Axios, React Hook Form, Zod, and Tailwind CSS are not installed yet.
-* The backend currently exposes `GET /health`, `/docs`, and the automatically generated OpenAPI endpoints.
-* The backend does not yet define database models, migrations, repositories, or authentication routes.
-* PostgreSQL is running and its connection URL is supplied to the backend, but the current health endpoint does not query it.
-* JWT and CORS values are available as environment variables, but the application does not yet use them.
-
-These planned capabilities belong to later frontend initialization, database, and authentication work.
-
-## 3. Repository Structure
-
-```text
-SentinelAI/
-|-- backend/
-|   |-- app/
-|   |   |-- __init__.py
-|   |   `-- main.py
-|   |-- Dockerfile
-|   `-- pyproject.toml
-|-- frontend/
-|   |-- src/
-|   |-- Dockerfile
-|   |-- package.json
-|   `-- vite.config.ts
-|-- docs/
-|-- .env.example
-`-- docker-compose.yml
-```
-
-## 4. Prerequisites
-
-Required:
+Required software:
 
 * Git
-* Docker Desktop with the Linux container engine running
-* Docker Compose, included with current Docker Desktop releases
+* Docker Desktop
+* Docker Compose
+* Visual Studio Code or another editor
 * A modern web browser
-* Visual Studio Code or another code editor
 
-Node.js and Python are not required on the host for the Docker-based workflow. They are only needed if the frontend or backend is run directly outside Docker.
-
-Verify Docker before continuing:
+Verify Docker:
 
 ```powershell
-docker version
+docker --version
 docker compose version
+docker info
 ```
 
-Both commands must show their client information, and `docker version` must also show a server section.
+Docker Desktop must be running.
 
-## 5. Clone the Repository
+## 3. Clone the Repository
 
 ```powershell
 git clone https://github.com/saiteinthine1020-source/SentinelAI.git
 cd SentinelAI
 ```
 
-Run all remaining commands from the repository root.
+## 4. Create the Local Environment File
 
-## 6. Configure Environment Variables
-
-Create the local environment file from the committed template:
+Copy the environment template:
 
 ```powershell
 Copy-Item .env.example .env
 ```
 
-Change the placeholder password and JWT secret in `.env` before using the environment beyond local development. The `.env` file contains local secrets and must not be committed.
+Open `.env` and replace the placeholder development values.
 
-### Environment variables
+Required values include:
 
-| Variable | Used for |
-| --- | --- |
-| `APP_ENV` | Identifies the application environment |
-| `POSTGRES_DB` | Creates the initial PostgreSQL database |
-| `POSTGRES_USER` | Creates the PostgreSQL application user |
-| `POSTGRES_PASSWORD` | Sets the PostgreSQL application-user password |
-| `DATABASE_URL` | Gives the backend its PostgreSQL connection string |
-| `JWT_SECRET_KEY` | Reserved for signing authentication tokens later |
-| `JWT_ALGORITHM` | Reserved for the JWT signing algorithm |
-| `ACCESS_TOKEN_EXPIRE_MINUTES` | Reserved for access-token lifetime configuration |
-| `CORS_ALLOWED_ORIGINS` | Reserved for backend CORS configuration |
-| `VITE_API_BASE_URL` | Gives the frontend the intended backend base URL |
+```dotenv
+POSTGRES_DB=sentinelai
+POSTGRES_USER=sentinelai
+POSTGRES_PASSWORD=<local-development-password>
 
-The PostgreSQL credentials in `DATABASE_URL` must match `POSTGRES_USER`, `POSTGRES_PASSWORD`, and `POSTGRES_DB`.
+DATABASE_URL=postgresql+psycopg://sentinelai:<local-development-password>@database:5432/sentinelai
 
-## 7. Understand the Database Hostname
+JWT_SECRET_KEY=<long-random-local-secret>
+JWT_ALGORITHM=HS256
+ACCESS_TOKEN_EXPIRE_MINUTES=30
 
-The backend runs inside a container, so its database hostname must be the Compose service name:
+ACCESS_TOKEN_COOKIE_NAME=sentinelai_access_token
+COOKIE_SECURE=false
+COOKIE_SAMESITE=lax
+COOKIE_PATH=/
 
-```text
-database:5432
+CORS_ALLOWED_ORIGINS=http://localhost:5173
+VITE_API_BASE_URL=http://localhost:8000
 ```
 
-The current URL therefore contains:
+The `.env` file contains local secrets and must never be committed.
 
-```text
-@database:5432
+Verify that Git ignores it:
+
+```powershell
+git check-ignore .env
 ```
 
-Inside the backend container, `localhost` means the backend container itself. Docker Compose resolves `database` to the PostgreSQL container because both services are attached to `sentinelai-network`.
-
-From Windows host tools, PostgreSQL is reached through its published address:
+Expected:
 
 ```text
-localhost:5432
+.env
 ```
 
-## 8. Validate the Compose Configuration
+## 5. Validate Docker Compose
 
 ```powershell
 docker compose config
 ```
 
-This expands the Compose file and substitutes values from `.env`. Treat the output as potentially sensitive because it can contain resolved credentials.
+The resolved output may contain environment values. Do not publish it if it contains local secrets.
 
-## 9. Build and Start the Environment
-
-Build the local frontend and backend images:
+## 6. Build the Services
 
 ```powershell
 docker compose build
 ```
 
-Start all three services in the background:
+This builds:
+
+* SentinelAI frontend image
+* SentinelAI backend image
+
+PostgreSQL uses the official container image.
+
+## 7. Start the Services
 
 ```powershell
 docker compose up -d
 ```
 
-Compose starts PostgreSQL first and waits for its health check before starting the backend. The frontend declares a dependency on the backend.
-
-Check container status:
+Check status:
 
 ```powershell
 docker compose ps
 ```
 
-The expected services are:
+Expected services:
 
-* `database` / `sentinelai-database`
-* `backend` / `sentinelai-backend`
-* `frontend` / `sentinelai-frontend`
+* `sentinelai-database`
+* `sentinelai-backend`
+* `sentinelai-frontend`
 
-## Backend Quality Checks
+The database and backend should become healthy.
 
-Run backend linting:
-
-```powershell
-docker compose run --rm backend ruff check app tests
-```
-
-## Database and Migration Commands
-
-Start PostgreSQL:
-
-```powershell
-docker compose up -d database
-```
-
-Check PostgreSQL health:
-
-```powershell
-docker compose ps
-```
-
-Show the current migration revision:
-
-```powershell
-docker compose run --rm backend alembic current
-```
-
-Show the latest migration head:
-
-```powershell
-docker compose run --rm backend alembic heads
-```
-
-Apply all migrations:
+## 8. Apply Database Migrations
 
 ```powershell
 docker compose run --rm backend alembic upgrade head
 ```
 
-Revert one migration:
+Check the current migration:
 
 ```powershell
-docker compose run --rm backend alembic downgrade -1
+docker compose run --rm backend alembic current
 ```
 
-Create a migration after changing SQLAlchemy models:
+Check the latest migration head:
 
 ```powershell
-docker compose run --rm backend alembic revision --autogenerate -m "describe schema change"
+docker compose run --rm backend alembic heads
 ```
 
-Generated migrations must be reviewed before they are applied.
+The current revision should match the migration head.
 
-Check for model changes that do not yet have a migration:
+## 9. Verify Backend Health
+
+Basic process health:
 
 ```powershell
-docker compose run --rm backend alembic check
+curl.exe http://localhost:8000/health
 ```
 
-Open PostgreSQL:
+Expected:
+
+```json
+{
+  "status": "ok",
+  "service": "sentinelai-backend",
+  "version": "0.1.0",
+  "environment": "development"
+}
+```
+
+Database readiness:
 
 ```powershell
-docker compose exec database psql -U sentinelai -d sentinelai
+curl.exe http://localhost:8000/health/ready
 ```
 
-Inside PostgreSQL, list tables:
+Expected:
 
-```text
-\dt
+```json
+{
+  "status": "ready",
+  "database": "available"
+}
 ```
 
-Exit PostgreSQL:
+## 10. Access the Application
 
-```text
-\q
-```
-
-Database readiness endpoint:
-
-```text
-http://localhost:8000/health/ready
-```
-
-## Frontend Development Commands
-
-Build the frontend Docker image:
-
-```powershell
-docker compose build frontend
-```
-
-Run frontend linting:
-
-```powershell
-docker compose run --rm frontend npm run lint
-```
-
-Run TypeScript checks:
-
-```powershell
-docker compose run --rm frontend npm run typecheck
-```
-
-Create a production build:
-
-```powershell
-docker compose run --rm frontend npm run build
-```
-
-Start the frontend development server:
-
-```powershell
-docker compose up -d frontend
-```
-
-Open the frontend:
+Frontend:
 
 ```text
 http://localhost:5173
 ```
 
-Phase 1 routes:
+Login:
 
 ```text
-/login
-/register
-/dashboard
+http://localhost:5173/login
 ```
 
-The dashboard route is not protected until the authentication feature is implemented.
-
-## 10. Access the Services
-
-| Service | Address | Current result |
-| --- | --- | --- |
-| Frontend | `http://localhost:5173` | React Phase 1 status page |
-| Backend health | `http://localhost:8000/health` | Basic backend process response |
-| FastAPI documentation | `http://localhost:8000/docs` | Interactive Swagger UI |
-| OpenAPI schema | `http://localhost:8000/openapi.json` | Generated API specification |
-| PostgreSQL | `localhost:5432` | Host connection for database tools |
-
-The `/health` endpoint confirms that FastAPI is responding. Use `/health/ready` to check PostgreSQL readiness.
-
-## Test User Registration
-
-Open:
+Registration:
 
 ```text
 http://localhost:5173/register
 ```
 
-Or use PowerShell:
+Protected dashboard:
+
+```text
+http://localhost:5173/dashboard
+```
+
+FastAPI documentation:
+
+```text
+http://localhost:8000/docs
+```
+
+## 11. Register a User
+
+Use the browser registration page or PowerShell:
 
 ```powershell
-$body = @{
+$registrationBody = @{
     username = "example_user"
     email = "example.user@example.com"
     password = "StrongPassword123!"
@@ -332,28 +233,37 @@ Invoke-RestMethod `
     -Method Post `
     -Uri "http://localhost:8000/api/v1/auth/register" `
     -ContentType "application/json" `
-    -Body $body
+    -Body $registrationBody
 ```
 
-## Test User Login
+Expected status:
 
-PowerShell example:
+```text
+201 Created
+```
+
+The response contains safe public user data and does not contain the password or password hash.
+
+## 12. Log In
 
 ```powershell
-$body = @{
-    email = "login.test@example.com"
+$loginBody = @{
+    email = "example.user@example.com"
     password = "StrongPassword123!"
 } | ConvertTo-Json
 
-Invoke-WebRequest `
+$loginResponse = Invoke-WebRequest `
     -Method Post `
     -Uri "http://localhost:8000/api/v1/auth/login" `
     -ContentType "application/json" `
-    -Body $body `
-    -SessionVariable session
+    -Body $loginBody `
+    -SessionVariable authenticationSession
+
+$loginResponse.StatusCode
+$loginResponse.Content
 ```
 
-A successful request returns:
+Expected body:
 
 ```json
 {
@@ -361,22 +271,22 @@ A successful request returns:
 }
 ```
 
-The access token is delivered through the `sentinelai_access_token` HttpOnly cookie and must not be copied into documentation.
+The access token is delivered through the `sentinelai_access_token` HttpOnly cookie.
 
-## Test the Current-User Session
+Do not print or publish the complete cookie value.
 
-After logging in, call:
+## 13. Verify the Current User
+
+Use the session created during login:
 
 ```powershell
 Invoke-RestMethod `
     -Method Get `
     -Uri "http://localhost:8000/api/v1/auth/me" `
-    -WebSession $session
+    -WebSession $authenticationSession
 ```
 
-The `$session` value must be the `WebRequestSession` created during the login request.
-
-Successful response:
+Expected response:
 
 ```json
 {
@@ -384,23 +294,26 @@ Successful response:
   "username": "example_user",
   "email": "example.user@example.com",
   "is_active": true,
-  "created_at": "2026-07-18T04:00:00Z"
+  "created_at": "ISO-8601 timestamp"
 }
 ```
 
-A request without a valid authentication cookie returns `401`.
+A request without a valid cookie returns:
 
-## Test Logout
+```text
+401 Unauthorized
+```
 
-PowerShell:
+## 14. Log Out
 
 ```powershell
 Invoke-RestMethod `
     -Method Post `
-    -Uri "http://localhost:8000/api/v1/auth/logout"
+    -Uri "http://localhost:8000/api/v1/auth/logout" `
+    -WebSession $authenticationSession
 ```
 
-Successful response:
+Expected:
 
 ```json
 {
@@ -408,17 +321,63 @@ Successful response:
 }
 ```
 
-Logout is idempotent and returns `200` even when no valid authentication cookie exists.
+Logout is idempotent and succeeds even when the authentication cookie is missing or invalid.
 
-## 11. Development Mounts and Persistence
+## 15. Run Backend Quality Checks
 
-The backend mounts `backend/app` and `backend/tests` into its container. Uvicorn runs with `--reload`, so Python application changes are reloaded during development.
+Lint:
 
-The frontend mounts the `frontend` directory into its container. Vite listens on `0.0.0.0:5173`, making the development server accessible from the host browser. A named volume keeps container-installed `node_modules` separate from the host source tree.
+```powershell
+docker compose run --rm backend ruff check app tests alembic
+```
 
-PostgreSQL stores its data in the `sentinelai_postgres_data` named volume. A normal container restart or `docker compose down` does not delete this data.
+Formatting:
 
-## 12. View Logs
+```powershell
+docker compose run --rm backend ruff format --check app tests alembic
+```
+
+Tests:
+
+```powershell
+docker compose run --rm backend pytest
+```
+
+Verbose tests:
+
+```powershell
+docker compose run --rm backend pytest -v
+```
+
+Coverage:
+
+```powershell
+docker compose run --rm backend pytest `
+    --cov=app `
+    --cov-report=term-missing
+```
+
+## 16. Run Frontend Quality Checks
+
+TypeScript:
+
+```powershell
+docker compose run --rm frontend npm run typecheck
+```
+
+Lint:
+
+```powershell
+docker compose run --rm frontend npm run lint
+```
+
+Production build:
+
+```powershell
+docker compose run --rm frontend npm run build
+```
+
+## 17. View Logs
 
 All services:
 
@@ -426,132 +385,191 @@ All services:
 docker compose logs
 ```
 
-Follow one service in real time:
+Backend:
 
 ```powershell
 docker compose logs -f backend
+```
+
+Frontend:
+
+```powershell
 docker compose logs -f frontend
+```
+
+Database:
+
+```powershell
 docker compose logs -f database
 ```
 
 Press `Ctrl+C` to stop following logs. This does not stop the containers.
 
-## 13. Stop or Reset the Environment
+## 18. Open PostgreSQL
 
-Stop and remove the development containers while keeping named-volume data:
+```powershell
+docker compose exec database psql -U sentinelai -d sentinelai
+```
+
+List tables:
+
+```text
+\dt
+```
+
+Inspect the `users` table:
+
+```text
+\d users
+```
+
+Exit:
+
+```text
+\q
+```
+
+Do not print full password hashes or credentials in documentation.
+
+## 19. Stop the Environment
+
+Stop containers while preserving PostgreSQL data:
 
 ```powershell
 docker compose down
 ```
 
-Restart existing services:
+Restart:
 
 ```powershell
-docker compose restart
+docker compose up -d
 ```
 
-Delete the PostgreSQL data and frontend dependency volumes only when an intentional full reset is required:
+## 20. Reset Local Database Data
+
+Use only when intentionally deleting local PostgreSQL data:
 
 ```powershell
 docker compose down -v
 ```
 
-The `-v` command permanently removes the Compose named volumes, including local PostgreSQL data.
-
-## 14. Rebuild After Dependency Changes
-
-Rebuild after changing `backend/pyproject.toml`, `frontend/package.json`, either Dockerfile, or other image-build inputs:
+Then rebuild and migrate:
 
 ```powershell
-docker compose up -d --build
-```
-
-Use a cache-free rebuild only when a normal rebuild does not apply the expected changes:
-
-```powershell
-docker compose build --no-cache
+docker compose up -d database
+docker compose run --rm backend alembic upgrade head
 docker compose up -d
 ```
 
-## 15. Optional Host-Side Commands
+The `-v` option deletes named volumes.
 
-These commands are not required for the Docker workflow. Use them only when Node.js or Python is intentionally installed on the host.
+## 21. Rebuild After Dependency Changes
 
-Frontend dependency installation and checks:
+Backend:
 
 ```powershell
-cd frontend
-npm.cmd install
-npm.cmd run lint
-npm.cmd run build
-cd ..
+docker compose build backend
 ```
 
-`npm.cmd` avoids the PowerShell execution-policy error that can occur when PowerShell blocks `npm.ps1`.
-
-## 16. Troubleshooting
-
-### Docker Desktop does not show a window
-
-Docker Desktop can continue running in the Windows system tray without an open dashboard. Check the engine directly:
+Frontend:
 
 ```powershell
-docker version
+docker compose build frontend
+```
+
+All services:
+
+```powershell
+docker compose build
+```
+
+For a clean rebuild:
+
+```powershell
+docker compose build --no-cache
+```
+
+Use `--no-cache` only when a normal rebuild does not resolve the problem.
+
+## 22. Troubleshooting
+
+### Docker daemon is unavailable
+
+Open Docker Desktop and retry:
+
+```powershell
 docker info
 ```
 
-If the client works but no server information is shown, start or restart Docker Desktop and wait for the Linux engine to become ready.
+### Port is already in use
 
-### Image download fails with `EOF`
+SentinelAI uses:
 
-An `EOF` from Docker Hub or CloudFront usually means the image download was interrupted. Retry:
+* Frontend: `5173`
+* Backend: `8000`
+* PostgreSQL: `5432`
 
-```powershell
-docker compose pull
-docker compose up -d --build
-```
-
-If it repeats, restart Docker Desktop and check the network, VPN, proxy, firewall, and Docker Hub connectivity. This error is normally unrelated to the Compose service definitions.
-
-### `docker` is not recognized
-
-Restart the terminal or Visual Studio Code after installing or updating Docker Desktop so the process receives the updated `PATH`. Then retry `docker version`.
-
-### PowerShell blocks `npm.ps1`
-
-Use the Windows command wrapper:
-
-```powershell
-npm.cmd install
-npm.cmd run dev
-```
-
-### Port already in use
-
-Another process may already be using port `5173`, `8000`, or `5432`. Stop that process or change the relevant host-side port mapping in `docker-compose.yml`.
+Stop the conflicting process or update the local port mapping.
 
 ### Backend cannot connect to PostgreSQL
 
-Confirm that:
+Confirm:
 
-* The database container is healthy.
-* `DATABASE_URL` uses `database`, not `localhost`, as its container-side hostname.
-* The PostgreSQL credentials in `.env` and `DATABASE_URL` match.
-* The `.env` file exists in the repository root.
-* The backend and database are attached to `sentinelai-network`.
+* PostgreSQL is healthy.
+* `DATABASE_URL` uses `database` as the hostname.
+* PostgreSQL credentials match.
+* `.env` exists.
+* Migrations have been applied.
 
-Inspect the relevant logs:
+### Backend returns database unavailable
+
+Check:
 
 ```powershell
-docker compose logs backend
+docker compose ps
 docker compose logs database
+docker compose logs backend
 ```
 
-### Environment variable changes do not apply
+### Frontend cannot reach the backend
 
-Recreate the containers so Compose supplies the new values:
+Confirm:
+
+```dotenv
+VITE_API_BASE_URL=http://localhost:8000
+CORS_ALLOWED_ORIGINS=http://localhost:5173
+```
+
+Rebuild the frontend after environment changes.
+
+### Login succeeds but dashboard redirects to login
+
+Check:
+
+* Browser cookies are enabled.
+* The login response contains `Set-Cookie`.
+* Frontend requests use credentials.
+* Backend CORS allows the exact frontend origin.
+* `/api/v1/auth/me` returns `200`.
+
+### Migration is not current
+
+Run:
 
 ```powershell
-docker compose down
-docker compose up -d --build
+docker compose run --rm backend alembic upgrade head
+docker compose run --rm backend alembic current
+docker compose run --rm backend alembic heads
 ```
+
+## 23. Security Notes
+
+* Never commit `.env`.
+* Never store JWTs in local storage or session storage.
+* Never expose `JWT_SECRET_KEY` to the frontend.
+* Never log passwords, password hashes, JWTs, or cookie values.
+* Development uses `COOKIE_SECURE=false`.
+* Production must use HTTPS and `COOKIE_SECURE=true`.
+* Frontend validation does not replace backend validation.
+* PostgreSQL unique constraints remain the final duplicate-user protection.
+* Generated Alembic migrations must be reviewed before execution.
